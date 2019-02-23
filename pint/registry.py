@@ -30,37 +30,44 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import division, unicode_literals, print_function, absolute_import
+from __future__ import (
+    division, unicode_literals, print_function,
+    absolute_import
+)
 
-import os
-import re
-import math
 import functools
 import itertools
-import pkg_resources
+import math
+import re
+from collections import defaultdict
+from contextlib import contextmanager, closing
 from decimal import Decimal
 from fractions import Fraction
-from contextlib import contextmanager, closing
 from io import open, StringIO
-from collections import defaultdict
 from tokenize import NUMBER, NAME
 
-from . import registry_helpers
-from .context import Context, ContextChain
-from .util import (logger, pi_theorem, solve_dependencies, ParserHelper,
-                   string_preprocessor, find_connected_nodes,
-                   find_shortest_path, UnitsContainer, _is_dim,
-                   to_units_container, SourceIterator)
+import pkg_resources
 
+from . import registry_helpers, systems
 from .compat import tokenizer, string_types, meta
-from .definitions import (Definition, UnitDefinition, PrefixDefinition,
-                          DimensionDefinition)
+from .context import Context, ContextChain
 from .converters import ScaleConverter
-from .errors import (DimensionalityError, UndefinedUnitError,
-                     DefinitionSyntaxError, RedefinitionError)
-
+from .definitions import (
+    Definition, UnitDefinition, PrefixDefinition,
+    DimensionDefinition
+)
+from .errors import (
+    DimensionalityError, UndefinedUnitError,
+    DefinitionSyntaxError, RedefinitionError
+)
 from .pint_eval import build_eval_tree
-from . import systems
+from .util import (
+    logger, pi_theorem, solve_dependencies, ParserHelper,
+    string_preprocessor, find_connected_nodes,
+    find_shortest_path, UnitsContainer, _is_dim,
+    to_units_container
+)
+from pint.toml import loads
 
 _BLOCK_RE = re.compile(r' |\(')
 
@@ -172,7 +179,7 @@ class BaseRegistry(meta.with_metaclass(_Meta)):
         """This should be called after all __init__
         """
         if self._filename == '':
-            self.load_definitions('default_en.txt', True)
+            self.load_definitions('unit.toml', True)
         elif self._filename is not None:
             self.load_definitions(self._filename)
 
@@ -255,13 +262,12 @@ class BaseRegistry(meta.with_metaclass(_Meta)):
             # For a base units, we need to define the related dimension
             # (making sure there is only one to define)
             if definition.is_base:
+                units_base = set([unit.reference for unit_key,unit in self._units.items() if unit.is_base is True])
+                if definition.reference in units_base and not "[]" in definition.reference.keys():
+                    raise DefinitionSyntaxError('only one unit per dimension can be a base unit.')
                 for dimension in definition.reference.keys():
-                    if dimension in self._dimensions:
-                        if dimension != '[]':
-                            raise DefinitionSyntaxError('only one unit per dimension can be a base unit.')
-                        continue
-
-                    self.define(DimensionDefinition(dimension, '', (), None, is_base=True))
+                    if dimension not in self._dimensions:
+                        self.define(DimensionDefinition(dimension, '', (), None, is_base=True))
 
         elif isinstance(definition, PrefixDefinition):
             d, di = self._prefixes, None
@@ -367,42 +373,78 @@ class BaseRegistry(meta.with_metaclass(_Meta)):
                 msg = getattr(e, 'message', '') or str(e)
                 raise ValueError('While opening {}\n{}'.format(file, msg))
 
-        ifile = SourceIterator(file)
-        for no, line in ifile:
-            if line and line[0] == '@':
-                if line.startswith('@import'):
-                    if is_resource:
-                        path = line[7:].strip()
-                    else:
-                        try:
-                            path = os.path.dirname(file.name)
-                        except AttributeError:
-                            path = os.getcwd()
-                        path = os.path.join(path, os.path.normpath(line[7:].strip()))
-                    self.load_definitions(path, is_resource)
-                else:
-                    parts = _BLOCK_RE.split(line)
+        text = file.read()
+        u = loads(text)
 
-                    loader = self._parsers.get(parts[0], None) if self._parsers else None
+        self._defaults = u["defaults"]
 
-                    if loader is None:
-                        raise DefinitionSyntaxError('Unknown directive %s' % line, lineno=no)
 
-                    try:
-                        loader(ifile)
-                    except DefinitionSyntaxError as ex:
-                        if ex.lineno is None:
-                            ex.lineno = no
-                        raise ex
-            else:
-                try:
-                    self.define(Definition.from_string(line))
-                except DefinitionSyntaxError as ex:
-                    if ex.lineno is None:
-                        ex.lineno = no
-                    raise ex
-                except Exception as ex:
-                    logger.error("In line {}, cannot add '{}' {}".format(no, line, ex))
+        for prefix_key, prefix_values in u["prefixes"].items():
+            definition = PrefixDefinition(prefix_key, prefix_values["symbol"], prefix_values.get("aliases", []),
+                                          str(prefix_values["factor"]))
+            self.define(definition)
+
+        for dimension_key, dimension in u["dimensions"].items():
+            converter = dimension if isinstance(dimension, str) else ""
+            dimension_symbol = dimension.get("symbol", None) if isinstance(
+                dimension, dict) else None
+            dimension_key = "[{}]".format(dimension_key)
+            definition = DimensionDefinition(dimension_key, dimension_symbol,
+                                             (),
+                                             converter)
+            self.define(definition)
+
+        for group in u["group"]:
+            grp = self.get_group(group["name"], True)
+            group_names = group.get("groups", [])
+            unit_names = list(group["units"].keys())
+            definitions = []
+            for unit_key, unit in group["units"].items():
+                unit_definition = UnitDefinition.from_string(unit_key + ' = ' + unit)
+                definitions.append(unit_definition)
+
+            for definition in definitions:
+                self.define(definition)
+            grp.add_units(*unit_names)
+
+            if group_names:
+                grp.add_groups(*group_names)
+
+        for constant_key, constant_values in u["constants"].items():
+            definition = UnitDefinition.from_string(
+                constant_key + ' = ' + constant_values)
+            self.define(definition)
+
+        for context in u["context"]:
+            name = context["name"]
+            aliases = context.get("aliases", [])
+            maps = context.get("maps", [])
+            defaults = context.get("defaults", {})
+            context_definition = Context(name, aliases, defaults)
+            context_definition = context_definition.add_maps(maps,
+                                                             self.get_dimensionality)
+            self.add_context(context_definition)
+
+
+        base_unit_names = {}
+        for system in u["system"]:
+            sys = self.System(system.pop("name"))
+            group_names = system.pop("groups", [])
+            aliases = system.pop("aliases", [])
+            for dim, unit in system.items():
+                new_unit = unit
+                old_unit_dict = to_units_container(self.get_root_units(unit)[1])
+
+                if len(old_unit_dict) != 1:
+                    raise ValueError('The new base must be a root dimension if not discarded unit is specified.')
+
+                old_unit, value = dict(old_unit_dict).popitem()
+
+                base_unit_names[old_unit] = {new_unit: 1. / value}
+
+            sys.add_groups(*group_names)
+
+            sys.base_units.update(**base_unit_names)
 
     def _build_cache(self):
         """Build a cache of dimensionality and base units.

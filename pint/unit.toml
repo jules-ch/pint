@@ -1,0 +1,493 @@
+[defaults]
+group="international"
+system="mks"
+
+[constants]
+speed_of_light = "299792458 * meter / second = c"
+standard_gravity = "9.806650 * meter / second ** 2 = g_0 = g_n = gravity"
+vacuum_permeability = "4 * pi * 1e-7 * newton / ampere ** 2 = mu_0 = magnetic_constant"
+vacuum_permittivity = "1 / (mu_0 * c **2 ) = epsilon_0 = electric_constant"
+Z_0 = "mu_0 * c = impedance_of_free_space = characteristic_impedance_of_vacuum"
+planck_constant = "6.62606957e-34 J s = h"
+hbar = "planck_constant / (2 * pi) = ħ"
+newtonian_constant_of_gravitation = "6.67384e-11 m^3 kg^-1 s^-2"
+molar_gas_constant = "8.3144621 J mol^-1 K^-1 = R"
+fine_structure_constant = "7.2973525698e-3"
+avogadro_number = "6.02214129e23 mol^-1 =N_A"
+boltzmann_constant = "1.3806488e-23 J K^-1 = k"
+stefan_boltzmann_constant ="5.670373e-8 W m^-2 K^-4 = σ"
+wien_frequency_displacement_law_constant = "5.8789254e10 Hz K^-1"
+rydberg_constant = "10973731.568539 m^-1"
+electron_mass = "9.10938291e-31 kg = m_e"
+neutron_mass = "1.674927351e-27 kg = m_n"
+proton_mass = "1.672621777e-27 kg = m_p"
+
+[prefixes]
+yocto={factor=1e-24,symbol="y"}
+zepto={factor=1e-21,symbol="z"}
+atto={factor=1e-18,symbol="a"}
+femto={factor=1e-15,symbol="f"}
+pico={factor=1e-12,symbol="p"}
+nano={factor=1e-9,symbol="n"}
+micro={factor=1e-6,symbol="µ", aliases=["u"]}
+milli={factor=1e-3,symbol="m"}
+centi={factor=1e-2,symbol="c"}
+deci={factor=1e-1,symbol="d"}
+deca={factor=1e+1,symbol="da", aliases=["deka"]}
+hecto={factor=1e2,symbol="h"}
+kilo={factor=1e3,symbol="k"}
+mega={factor=1e6,symbol="M"}
+giga={factor=1e9,symbol="G"}
+tera={factor=1e12,symbol="T"}
+peta={factor=1e15,symbol="P"}
+exa={factor=1e18,symbol="E"}
+zetta={factor=1e21,symbol="Z"}
+yotta={factor=1e24,symbol="Y"}
+
+kibi = {factor="2**10", symbol= "Ki"}
+mebi = {factor="2**20", symbol= "Mi"}
+gibi = {factor="2**30", symbol= "Gi"}
+tebi = {factor="2**40", symbol= "Ti"}
+pebi = {factor="2**50", symbol= "Pi"}
+exbi = {factor="2**60", symbol= "Ei"}
+zebi = {factor="2**70", symbol= "Zi"}
+yobi = {factor="2**80", symbol= "Yi"}
+
+[dimensions]
+
+length = {symbol="L"}
+mass = {symbol="M"}
+time = {symbol="T"}
+current = {symbol="I"}
+temperature = {symbol="Θ"}
+substance = {symbol="N"}
+luminosity = {symbol="J"}
+acceleration = "[length] / [time] ** 2"
+area = "[length] ** 2"
+volume = "[length] ** 3"
+speed = "[length] / [time]"
+density = "[mass] / [length] ** 3"
+concentration = "[substance] / [volume]"
+frequency = "1 / [time]"
+energy = "[force] * [length]"
+power = "[energy] / [time]"
+pressure = "[force] / [area]"
+force = "[mass] * [acceleration]"
+viscosity = "[pressure] * [time]"
+
+[[group]]
+name="root"
+[group.units]
+meter = "[length] = m = metre"
+second = "[time] = s = sec"
+ampere = "[current] = A = amp"
+candela = "[luminosity] = cd = candle"
+gram = "[mass] = g"
+mole = "[substance] = mol"
+kelvin = "[temperature]; offset: 0 = K = degK"
+radian = "[] = rad"
+bit = "[]"
+count = "[]"
+#meter = {dimension="[length]",symbol="m",aliases=["metre"]}
+#second = {dimension="[time]",symbol= "s" , aliases=["sec"]}
+#ampere = {dimension="[current]", symbol="A", aliases=["amp"]}
+#candela = {dimension="[luminosity]", symbol="cd", aliases=["candle"]}
+#gram = {dimension="[mass]", symbol="g"}
+#mole = {dimension="[substance]", symbol="mol"}
+#kelvin = {dimension="[temperature]", offset=0, symbol= "K", aliases=["degK"]}
+#radian = {dimension="[]", symbol="rad"}
+#bit = {dimension="[]"}
+#count = {dimension="[]"}
+
+
+# Angle
+turn = "2 * pi * radian = revolution = cycle = circle"
+degree = "pi / 180 * radian = deg = arcdeg = arcdegree = angular_degree"
+arcminute = "arcdeg / 60 = arcmin = arc_minute = angular_minute"
+arcsecond = "arcmin / 60 =  arcsec = arc_second = angular_second"
+steradian = "radian ** 2 = sr"
+
+# Area
+
+are = "100 * m**2"
+barn = "1e-28 * m ** 2 = b"
+cmil = "5.067075e-10 * m ** 2 = circular_mils"
+darcy = "9.869233e-13 * m ** 2"
+hectare = "100 * are = ha"
+
+# Concentration
+molar = "mol / (1e-3 * m ** 3) = M"
+
+# EM
+esu = "1 * erg**0.5 * centimeter**0.5 = statcoulombs = statC = franklin = Fr"
+esu_per_second = "1 * esu / second = statampere"
+ampere_turn = "1 * A"
+gilbert = "10 / (4 * pi ) * ampere_turn"
+coulomb = "ampere * second = C"
+volt = "joule / coulomb = V"
+farad = "coulomb / volt = F"
+ohm = "volt / ampere = Ω"
+siemens = "ampere / volt = S = mho"
+weber = "volt * second = Wb"
+tesla = "weber / meter ** 2 = T"
+henry = "weber / ampere = H"
+elementary_charge = "1.602176487e-19 * coulomb = e"
+chemical_faraday = "9.64957e4 * coulomb"
+physical_faraday = "9.65219e4 * coulomb"
+faraday =  "96485.3399 * coulomb = C12_faraday"
+gamma ="1e-9 * tesla"
+gauss = "1e-4 * tesla"
+maxwell ="1e-8 * weber = mx"
+oersted = "1000 / (4 * pi) * A / m = Oe"
+statfarad = "1.112650e-12 * farad = statF = stF"
+stathenry = "8.987554e11 * henry = statH = stH"
+statmho = "1.112650e-12 * siemens = statS = stS"
+statohm = "8.987554e11 * ohm"
+statvolt = "2.997925e2 * volt = statV = stV"
+unit_pole = "1.256637e-7 * weber"
+
+# Energy
+
+joule = "newton * meter = J"
+erg = "dyne * centimeter"
+btu = "1.05505585262e3 * joule = Btu = BTU = british_thermal_unit"
+electron_volt = "1.60217653e-19 * J = eV"
+quadrillion_btu = "10**15 * btu = quad"
+thm = "100000 * BTU = therm = EC_therm"
+calorie = "4.184 * joule = cal = thermochemical_calorie"
+international_steam_table_calorie = "4.1868 * joule"
+ton_TNT = "4.184e9 * joule = tTNT"
+US_therm = "1.054804e8 * joule"
+watt_hour = "watt * hour = Wh = watthour"
+hartree = "4.35974394e-18 * joule = = Eh = E_h = hartree_energy"
+toe = "41.868e9 * joule = tonne_of_oil_equivalent"
+
+# Force
+newton = "kilogram * meter / second ** 2 = N"
+dyne = "gram * centimeter / second ** 2 = dyn"
+force_kilogram = "g_0 * kilogram = kgf = kilogram_force = pond"
+force_gram = "g_0 * gram = gf = gram_force"
+force_ounce = "g_0 * ounce = ozf = ounce_force"
+force_pound = "g_0 * lb = lbf = pound_force"
+force_ton = "2000 * force_pound = ton_force"
+poundal = "lb * feet / second ** 2 = pdl"
+kip = "1000*lbf"
+
+# Frequency
+hertz = "1 / second = Hz = rps"
+revolutions_per_minute = "revolution / minute = rpm"
+counts_per_second = "count / second = cps"
+
+# Heat
+#RSI = "degK * meter ** 2 / watt"
+#clo = "0.155 * RSI = clos"
+#R_value = "foot ** 2 * degF * hour / btu"
+
+# Information
+byte = "8 * bit = B = octet"
+baud = "bit / second = Bd = bps"
+
+# Irradiance
+peak_sun_hour = "1000 * watt_hour / meter**2 = PSH"
+langley = "thermochemical_calorie / centimeter**2 = Langley"
+
+# Length
+angstrom = "1e-10 * meter = Å = ångström = Å"
+parsec = "3.08568025e16 * meter = pc"
+light_year = "speed_of_light * julian_year = ly = lightyear"
+astronomical_unit = "149597870691 * meter = au"
+
+# Mass
+carat = "200 * milligram"
+metric_ton = "1000 * kilogram = t = tonne"
+atomic_mass_unit = "1.660538782e-27 * kilogram =  u = amu = dalton = Da"
+bag = "94 * lb"
+
+# Textile
+denier = " gram / (9000 * meter)"
+tex = "gram / (1000 * meter)"
+dtex = "decitex"
+
+# These are Indirect yarn numbering systems (length/unit mass)
+jute = "lb / (14400 * yd) = Tj"
+Ne = "1/590.5 / tex"
+Nm = "1/1000 / tex"
+
+# Photometry
+lumen = "candela * steradian = lm"
+lux = "lumen / meter ** 2 = lx"
+
+# Power
+watt = "joule / second = W = volt_ampere = VA"
+horsepower = "33000 * ft * lbf / min = hp = UK_horsepower = British_horsepower"
+boiler_horsepower = "33475 * btu / hour"
+metric_horsepower = " 75 * force_kilogram * meter / second"
+electric_horsepower = "746 * watt"
+hydraulic_horsepower = "550 * feet * lbf / second"
+refrigeration_ton = "12000 * btu / hour = ton_of_refrigeration"
+
+# Pressure
+Hg = "gravity * 13.59510 * gram / centimeter ** 3 = mercury = conventional_mercury"
+mercury_60F = "gravity * 13.5568 * gram / centimeter ** 3"
+H2O = "gravity * 1000 * kilogram / meter ** 3 = h2o = water = conventional_water"
+water_4C = "gravity * 999.972 * kilogram / meter ** 3 = water_39F"
+water_60F = "gravity * 999.001 * kilogram / m ** 3"
+pascal = "newton / meter ** 2 = Pa"
+bar = "100000 * pascal"
+atmosphere = "101325 * pascal = atm = standard_atmosphere"
+technical_atmosphere = "kilogram * gravity / centimeter ** 2 = at"
+torr = "atm / 760"
+pound_force_per_square_inch = "pound * gravity / inch ** 2 = psi"
+kip_per_square_inch = "kip / inch ** 2 = ksi"
+barye = "0.1 * newton / meter ** 2 = barie = barad = barrie = baryd = Ba"
+mm_Hg = "millimeter * Hg = mmHg = millimeter_Hg = millimeter_Hg_0C"
+cm_Hg = "centimeter * Hg = cmHg = centimeter_Hg"
+in_Hg = "inch * Hg = inHg = inch_Hg = inch_Hg_32F"
+inch_Hg_60F = "inch * mercury_60F"
+inch_H2O_39F = "inch * water_39F"
+inch_H2O_60F = "inch * water_60F"
+footH2O = "ft * water"
+cmH2O = "centimeter * water"
+foot_H2O = "ft * water = ftH2O"
+standard_liter_per_minute = "1.68875 * Pa * m ** 3 / s = slpm = slm"
+
+# Radiation
+Bq = "Hz = becquerel"
+curie = "3.7e10 * Bq = Ci"
+rutherford = "1e6*Bq = Rd"
+Gy = "joule / kilogram = gray = Sv = sievert"
+rem = "1e-2 * sievert"
+rads = "1e-2 * gray"
+roentgen = "2.58e-4 * coulomb / kilogram"
+
+# Temperature
+degC = "kelvin; offset: 273.15 = celsius"
+degR = "5 / 9 * kelvin; offset: 0 = rankine"
+degF = "5 / 9 * kelvin; offset: 255.372222 = fahrenheit"
+
+# Time
+minute = "60 * second = min"
+hour = "60 * minute = hr"
+day = "24 * hour"
+week = "7 * day"
+fortnight = "2 * week"
+year = "31556925.9747 * second"
+month = "year / 12"
+shake = "1e-8 * second"
+sidereal_day = "day / 1.00273790935079524"
+sidereal_hour = "sidereal_day / 24"
+sidereal_minute = "sidereal_hour / 60"
+sidereal_second = "sidereal_minute / 60"
+sidereal_year = "366.25636042 * sidereal_day"
+sidereal_month = "27.321661 * sidereal_day"
+tropical_month = "27.321661 * day"
+synodic_month = "29.530589 * day = lunar_month"
+common_year = "365 * day"
+leap_year = "366 * day"
+julian_year = "365.25 * day"
+gregorian_year = "365.2425 * day"
+millenium = "1000 * year = millenia = milenia = milenium"
+eon = "1e9 * year"
+work_year = "2056 * hour"
+work_month = "work_year / 12"
+
+# Velocity
+nautical_mile = "1852 m = nmi # exact"
+knot = "nautical_mile / hour = kt = knot_international = international_knot = nautical_miles_per_hour"
+mph = "mile / hour = MPH"
+kph = "kilometer / hour = KPH"
+
+# Viscosity
+poise = "1e-1 * Pa * second = P"
+stokes = "1e-4 * meter ** 2 / second = St"
+rhe = "10 / (Pa * s)"
+
+# Volume
+liter = "1e-3 * m ** 3 = l = L = litre"
+cc = "centimeter ** 3 = cubic_centimeter"
+stere = "meter ** 3"
+
+
+[[group]]
+ name="Avoirdupois"
+[group.units]
+grain = "avdp_pound / 7000 = gr"
+drachm = "pound / 256 = dr = avoirdupois_dram = avdp_dram = dram"
+ounce = "pound / 16 = oz = avoirdupois_ounce = avdp_ounce"
+pound = "453.59237 gram = lb = avoirdupois_pound = avdp_pound"
+
+short_hunderdweight = "100 avoirdupois_pound = ch_cwt"
+long_hunderweight = "112 avoirdupois_pound = lg_cwt"
+short_ton = "2000 avoirdupois_pound"
+long_ton = "2240 avoirdupois_pound"
+
+[[group]]
+name="Troy"
+[group.units]
+pennyweight = "24 grain = dwt"
+troy_ounce = "480 grain = toz"
+troy_pound = "12 troy_ounce = tlb"
+
+[[group]]
+name="Apothecary"
+[group.units]
+scruple = "20 grain"
+apothecary_dram = "3 scruple = ap_dr"
+apothecary_ounce = "8 apothecary_dram = ap_oz"
+apothecary_pound = "12 apothecary_ounce = ap_lb"
+
+[[group]]
+name="AvoirdupoisUK"
+groups=["Avoirdupois"]
+[group.units]
+    stone = "14 pound"
+    quarter = "28 stone"
+    UK_hundredweight = "long_hunderweight = UK_cwt"
+    UK_ton = "long_ton"
+
+
+
+[[group]]
+name="AvoirdupoisUS"
+groups=["Avoirdupois"]
+[group.units]
+US_hundredweight = "short_hunderdweight = US_cwt"
+US_ton = "short_ton = ton"
+
+[[group]]
+name="USCSLengthSurvey"
+[group.units]
+link = "0.66 survey_foot = li = survey_link"
+survey_foot = "foot / 0.999998 = sft"
+rod = "16.5 survey_foot = rd = pole = perch"
+chain = "66 survey_foot"
+survey_mile = "5280 survey_foot"
+acre = "43560 survey_foot ** 2"
+square_rod = "1 rod ** 2 = sq_rod = sq_pole = sq_perch"
+fathom = "6 survey_foot"
+us_statute_mile = "5280 survey_foot"
+league = "3 us_statute_mile"
+furlong = "us_statute_mile / 8"
+
+
+[[group]]
+name="USCSLengthInternational"
+[group.units]
+inch = "yard / 36 = in = international_inch = inches = international_inches"
+foot = "yard / 3 = ft = international_foot = feet = international_feet"
+yard ="0.9144 metres = yd = international_yard"
+mile = "1760 yard = mi = international_mile"
+
+square_inch = "1 inch ** 2 = sq_in = square_inches"
+square_foot = "1 foot ** 2 = sq_ft = square_feet"
+square_yard = "1 yard ** 2 = sq_yd"
+square_mile = "1 mile ** 2 = sq_mi"
+
+cubic_inch = "1 in ** 3 = cu_in"
+cubic_foot = "1 ft ** 3 = cu_ft = cubic_feet"
+cubic_yard = "1 yd ** 3 = cu_yd"
+
+acre_foot = "acre * foot = acre_feet"
+
+[[group]]
+name="USCSDryVolume"
+[group.units]
+dry_pint = "33.6003125 cubic_inch  = dpi = US_dry_pint"
+dry_quart = "2 dry_pint = dqt = US_dry_quart"
+dry_gallon = "8 dry_pint = dgal = US_dry_gallon"
+peck = "16 dry_pint = pk"
+bushel = "64 dry_pint = bu"
+dry_barrel = "7065 cubic_inch = US_dry_barrel"
+
+[[group]]
+name="USCSLiquidVolume"
+[group.units]
+minim = "liquid_pint / 7680"
+fluid_dram = "liquid_pint / 128 = fldr = fluidram = US_fluid_dram"
+fluid_ounce = "liquid_pint / 16 = floz = US_fluid_ounce = US_liquid_ounce"
+gill = "liquid_pint / 4 = gi = liquid_gill = US_liquid_gill"
+pint = "28.875 cubic_inch = pt = liquid_pint = US_pint"
+quart = "2 liquid_pint = qt = liquid_quart = US_liquid_quart"
+gallon = "8 liquid_pint = gal = liquid_gallon = US_liquid_gallon"
+
+[[group]]
+name="USCSVolumeOther"
+[group.units]
+teaspoon = "tablespoon / 3 = tsp"
+tablespoon = "floz / 2 = tbsp = Tbsp = Tblsp = tblsp = tbs = Tbl"
+shot = "3 * tablespoon = jig = US_shot"
+cup = "8 fluid_ounce = cp = liquid_cup = US_liquid_cup"
+barrel = "31.5 * gallon = bbl"
+oil_barrel = "42 * gallon = oil_bbl"
+beer_barrel = "31 * gallon = beer_bbl"
+hogshead = "63 * gallon"
+
+[[group]]
+name="Printer"
+[group.units]
+pixel = "[printing_unit] = dot = px = pel = picture_element"
+pixels_per_centimeter = "pixel / cm = PPCM"
+pixels_per_inch = "pixel / inch = dots_per_inch = PPI = ppi = DPI = printers_dpi"
+bits_per_pixel = "bit / pixel = bpp"
+point = "yard / 216 / 12 = pp = printers_point"
+thou = "yard / 36000 = th = mil"
+pica = "yard / 216 = P̸ = printers_pica"
+
+
+[[group]]
+name="USCSVolumeOther"
+[group.units]
+imperial_fluid_ounce = "imperial_pint / 20 = imperial_floz = UK_fluid_ounce"
+imperial_fluid_drachm = "imperial_fluid_ounce / 8 = imperial_fluid_dram"
+imperial_gill = "imperial_pint / 4 = imperial_gi = UK_gill"
+imperial_cup = "imperial_pint / 2 = imperial_cp = UK_cup"
+imperial_pint = "568.26125 * milliliter = imperial_pt = UK_pint"
+imperial_quart = "2 * imperial_pint = imperial_qt = UK_quart"
+imperial_gallon = "8 * imperial_pint = imperial_gal = UK_gallon"
+imperial_peck = "16 * imperial_pint = imperial_pk = UK_pk"
+imperial_bushel = "64 * imperial_pint = imperial_bu = UK_bushel"
+imperial_barrel = "288 * imperial_pint = imperial_bbl = UK_bbl"
+
+[[context]]
+name="spectroscopy"
+aliases=["sp"]
+maps=["[length] <-> [frequency]: speed_of_light / n / value",
+      "[frequency] -> [energy]: planck_constant * value",
+      "[energy] -> [frequency]: value / planck_constant",
+      "1 / [length] <-> [length]: 1 / value]"]
+[context.defaults]
+n=1
+
+[[context]]
+name="textile"
+maps=["[mass] / [length] <-> [length] / [mass]: 1 / value"]
+
+
+[[system]]
+name="mks"
+aliases=["SI", "international system"]
+groups=["international"]
+length = "meter"
+mass = "kilogram"
+time = "second"
+current = "ampere"
+temperature = "kelvin"
+substance = "mole"
+luminosity = "candela"
+
+[[system]]
+name="US"
+groups=[
+"USCSLiquidVolume",
+"USCSDryVolume",
+"USCSVolumeOther",
+"USCSLengthInternational",
+"USCSLengthSurvey",
+"AvoirdupoisUS"]
+length = "yard"
+mass = "pound"
+time = "second"
+current = "ampere"
+temperature = "kelvin"
+substance = "mole"
+luminosity = "candela"

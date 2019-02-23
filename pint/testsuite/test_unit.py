@@ -186,7 +186,7 @@ class TestRegistry(QuantityTestCase):
     def test_load(self):
         import pkg_resources
         from pint import unit
-        data = pkg_resources.resource_filename(unit.__name__, 'default_en.txt')
+        data = pkg_resources.resource_filename(unit.__name__, 'unit.toml')
         ureg1 = UnitRegistry()
         ureg2 = UnitRegistry(data)
         self.assertEqual(dir(ureg1), dir(ureg2))

@@ -94,6 +94,47 @@ class Context(object):
             return c
         return context
 
+    def add_maps(self,lines,to_base_func):
+        lines = SourceIterator(lines)
+        names = set()
+        for lineno, line in lines:
+            try:
+                rel, eq = line.split(':')
+                names.update(_varname_re.findall(eq))
+
+                func = _expression_to_function(eq)
+
+                if '<->' in rel:
+                    src, dst = (ParserHelper.from_string(s)
+                                for s in rel.split('<->'))
+                    if to_base_func:
+                        src = to_base_func(src)
+                        dst = to_base_func(dst)
+                    self.add_transformation(src, dst, func)
+                    self.add_transformation(dst, src, func)
+                elif '->' in rel:
+                    src, dst = (ParserHelper.from_string(s)
+                                for s in rel.split('->'))
+                    if to_base_func:
+                        src = to_base_func(src)
+                        dst = to_base_func(dst)
+                    self.add_transformation(src, dst, func)
+                else:
+                    raise Exception
+            except:
+                raise DefinitionSyntaxError(
+                    "Could not parse Context %s relation '%s'" % (self.name, line),
+                    lineno=lineno)
+
+        if self.defaults:
+            missing_pars = set(self.defaults.keys()).difference(set(names))
+            if missing_pars:
+                raise DefinitionSyntaxError(
+                    'Context parameters {} not found in any equation.'.format(
+                        missing_pars))
+
+        return self
+
     @classmethod
     def from_lines(cls, lines, to_base_func=None):
         lines = SourceIterator(lines)
@@ -108,7 +149,7 @@ class Context(object):
             else:
                 aliases = ()
             defaults = r.groupdict()['defaults']
-        except:
+        except Exception as e:
             raise DefinitionSyntaxError("Could not parse the Context header '%s'" % header,
                                         lineno=lineno)
 
