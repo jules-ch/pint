@@ -377,15 +377,13 @@ class BaseRegistry(meta.with_metaclass(_Meta)):
         u = loads(text)
 
         self._defaults = u["defaults"]
-
-
         for prefix_key, prefix_values in u["prefixes"].items():
             definition = PrefixDefinition(prefix_key, prefix_values["symbol"], prefix_values.get("aliases", []),
                                           str(prefix_values["factor"]))
             self.define(definition)
 
         for dimension_key, dimension in u["dimensions"].items():
-            converter = dimension if isinstance(dimension, str) else ""
+            converter = dimension if isinstance(dimension, string_types) else ""
             dimension_symbol = dimension.get("symbol", None) if isinstance(
                 dimension, dict) else None
             dimension_key = "[{}]".format(dimension_key)
