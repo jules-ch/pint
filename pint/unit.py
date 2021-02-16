@@ -16,7 +16,7 @@ from numbers import Number
 from .compat import NUMERIC_TYPES, is_upcast_type
 from .definitions import UnitDefinition
 from .errors import DimensionalityError
-from .formatting import siunitx_format_unit
+from .formatting import formatter, siunitx_format_unit
 from .util import PrettyIPython, SharedRegistryObject, UnitsContainer
 
 
@@ -110,6 +110,24 @@ class Unit(PrettyIPython, SharedRegistryObject):
             units = self._units
 
         return "%s" % (units.format_babel(spec, **kwspec))
+
+    def format_unit(self, *, symbols=False, **kwargs):
+        units = self._units
+
+        if not units:
+            return "" if symbols else "dimensionless"
+
+        if symbols:
+            units = UnitsContainer(
+                dict(
+                    (self._REGISTRY._get_symbol(key), value)
+                    for key, value in self._units.items()
+                )
+            )
+        else:
+            units = self._units
+
+        return formatter(units.items(), **kwargs)
 
     @property
     def dimensionless(self):

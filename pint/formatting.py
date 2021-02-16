@@ -9,6 +9,7 @@
 """
 
 import re
+from typing import Callable, List, Tuple
 
 from .babel_names import _babel_lengths, _babel_units
 from .compat import babel_parse
@@ -114,22 +115,31 @@ _FORMATS = {
         "power_fmt": "{}**{}",
         "parentheses_fmt": r"({})",
     },
+    "I": {  # ISO 80000-1 compliant string
+        "as_ratio": False,
+        "single_denominator": False,
+        "product_fmt": "·",
+        "division_fmt": "/",
+        "power_fmt": "{}{}",
+        "parentheses_fmt": "({})",
+        "exp_call": _pretty_fmt_exponent,
+    },
 }
 
 
 def formatter(
-    items,
-    as_ratio=True,
-    single_denominator=False,
-    product_fmt=" * ",
-    division_fmt=" / ",
-    power_fmt="{} ** {}",
-    parentheses_fmt="({0})",
-    exp_call=lambda x: f"{x:n}",
-    locale=None,
-    babel_length="long",
-    babel_plural_form="one",
-    sort=True,
+    items: List[Tuple[str, float]],
+    as_ratio: bool = True,
+    single_denominator: bool = False,
+    product_fmt: str = " * ",
+    division_fmt: str = " / ",
+    power_fmt: str = "{} ** {}",
+    parentheses_fmt: str = "({0})",
+    exp_call: Callable[[float], str] = lambda x: f"{x:n}",
+    locale: str = None,
+    babel_length: str = "long",
+    babel_plural_form: str = "one",
+    sort: bool = True,
 ):
     """Format a list of (name, exponent) pairs.
 
