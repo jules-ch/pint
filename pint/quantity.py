@@ -19,11 +19,8 @@ import re
 import warnings
 from typing import List
 
-from packaging import version
-
 from .compat import (
     HAS_NUMPY_ARRAY_FUNCTION,
-    NUMPY_VER,
     _to_magnitude,
     babel_parse,
     compute,
@@ -1251,11 +1248,7 @@ class Quantity(PrettyIPython, SharedRegistryObject):
     __rmul__ = __mul__
 
     def __matmul__(self, other):
-        # Use NumPy ufunc (existing since 1.16) for matrix multiplication
-        if version.parse(NUMPY_VER) >= version.parse("1.16"):
-            return np.matmul(self, other)
-        else:
-            return NotImplemented
+        return np.matmul(self, other)
 
     __rmatmul__ = __matmul__
 
