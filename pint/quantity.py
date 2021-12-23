@@ -947,6 +947,34 @@ class Quantity(PrettyIPython, SharedRegistryObject):
 
         return self
 
+    def _get_commutative_op_units(self, units: UnitsContainer, other_units: UnitsContainer):
+        """Ensure commutative operations will result in same units & magnitude.
+        
+        1. If units are the same return same units
+        2. If units are prefixed return this units
+        3. Returns base units (default system if Registry is SystemRegistry)
+        """
+
+        if units == other_units:
+            return units
+        else:
+            units_unprefixed = units.copy()
+            units_keys = units.keys()
+            for key in units_keys:
+                unprefixed_key = self._REGISTRY.parse_unit_name(key)[0][1]
+                units_unprefixed = units_unprefixed.rename(key, unprefixed_key)
+
+            other_units_unprefixed = other_units.copy()
+            other_units_keys = other_units.keys()
+            for key in other_units_keys:
+                other_unprefixed_key = self._REGISTRY.parse_unit_name(key)[0][1]
+                other_units_unprefixed = other_units_unprefixed.rename(key, other_unprefixed_key)
+            if other_units_unprefixed == units_unprefixed:
+                return units_unprefixed
+
+            return self._REGISTRY.get_base_units(units)[1]
+
+
     @check_implemented
     def _add_sub(self, other, op):
         """Perform addition or subtraction operation and return the result.
