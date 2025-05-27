@@ -1,18 +1,18 @@
 """
-    pint.facets.systems.definitions
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.systems.definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import Self
 
-from ... import errors
-from ...compat import Self
+from pint import errors
 
 
 @dataclass(frozen=True)

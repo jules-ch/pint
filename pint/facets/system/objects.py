@@ -1,11 +1,10 @@
 """
-    pint.facets.systems.objects
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.systems.objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
-
 
 from __future__ import annotations
 
@@ -14,23 +13,23 @@ from collections.abc import Callable, Iterable
 from numbers import Number
 from typing import Any, Generic
 
-from ..._typing import UnitLike
-from ...babel_names import _babel_systems
-from ...compat import babel_parse
-from ...util import (
+from pint._typing import M, UnitLike
+from pint.babel_names import _babel_systems
+from pint.compat import babel_parse
+from pint.util import (
     SharedRegistryObject,
     getattr_maybe_raise,
     logger,
     to_units_container,
 )
+
 from .. import group
-from ..plain import MagnitudeT
 from .definitions import SystemDefinition
 
 GetRootUnits = Callable[[UnitLike, bool], tuple[Number, UnitLike]]
 
 
-class SystemQuantity(Generic[MagnitudeT], group.GroupQuantity[MagnitudeT]):
+class SystemQuantity(group.GroupQuantity[M], Generic[M]):
     pass
 
 
@@ -57,7 +56,7 @@ class System(SharedRegistryObject):
     def __init__(self, name: str):
         #: Name of the system
         #: :type: str
-        self.name = name
+        self.name: str = name
 
         #: Maps root unit names to a dict indicating the new unit and its exponent.
         self.base_units: dict[str, dict[str, numbers.Number]] = {}

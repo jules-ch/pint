@@ -1,11 +1,11 @@
 """
-    pint.formatter
-    ~~~~~~~~~~~~~~
+pint.formatter
+~~~~~~~~~~~~~~
 
-    Format units for pint.
+Format units for pint.
 
-    :copyright: 2016 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2016 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -142,7 +142,7 @@ def formatter(
     return _join(division_fmt, [pos_ret, neg_ret])
 
 
-def format_unit(unit, spec: str, registry=None, **options):
+def format_unit(unit, spec: str, registry=None, **options) -> str:
     # registry may be None to allow formatting `UnitsContainer` objects
     # in that case, the spec may not be "Lx"
 

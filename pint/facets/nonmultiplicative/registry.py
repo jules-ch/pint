@@ -1,28 +1,26 @@
 """
-    pint.facets.nonmultiplicative.registry
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.nonmultiplicative.registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
-from ...compat import TypeAlias
-from ...errors import DimensionalityError, UndefinedUnitError
-from ...util import UnitsContainer, logger
-from ..plain import GenericPlainRegistry, QuantityT, UnitDefinition, UnitT
+from pint.errors import DimensionalityError, UndefinedUnitError
+from pint.facets.plain import GenericPlainRegistry, UnitDefinition
+from pint.util import UnitsContainer, logger
+
 from . import objects
 from .definitions import OffsetConverter, ScaleConverter
 
 T = TypeVar("T")
 
 
-class GenericNonMultiplicativeRegistry(
-    Generic[QuantityT, UnitT], GenericPlainRegistry[QuantityT, UnitT]
-):
+class GenericNonMultiplicativeRegistry(GenericPlainRegistry):
     """Handle of non multiplicative units (e.g. Temperature).
 
     Capabilities:
@@ -295,10 +293,6 @@ class GenericNonMultiplicativeRegistry(
         return value
 
 
-class NonMultiplicativeRegistry(
-    GenericNonMultiplicativeRegistry[
-        objects.NonMultiplicativeQuantity[Any], objects.NonMultiplicativeUnit
-    ]
-):
-    Quantity: TypeAlias = objects.NonMultiplicativeQuantity[Any]
-    Unit: TypeAlias = objects.NonMultiplicativeUnit
+class NonMultiplicativeRegistry(GenericNonMultiplicativeRegistry):
+    Quantity = objects.NonMultiplicativeQuantity[Any]
+    Unit = objects.NonMultiplicativeUnit

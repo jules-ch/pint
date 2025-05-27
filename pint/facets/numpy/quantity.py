@@ -1,9 +1,9 @@
 """
-    pint.facets.numpy.quantity
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.numpy.quantity
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -11,12 +11,13 @@ from __future__ import annotations
 import functools
 import math
 import warnings
-from typing import Any, Generic
+from typing import Any
 
-from ..._typing import Shape
-from ...compat import HAS_NUMPY, _to_magnitude, np
-from ...errors import DimensionalityError, PintTypeError, UnitStrippedWarning
-from ..plain import MagnitudeT, PlainQuantity
+from pint._typing import M, Shape
+from pint.compat import HAS_NUMPY, _to_magnitude, np
+from pint.errors import DimensionalityError, PintTypeError, UnitStrippedWarning
+
+from ..plain import PlainQuantity
 from .numpy_func import (
     HANDLED_UFUNCS,
     copy_units_output_ufuncs,
@@ -51,7 +52,7 @@ def method_wraps(numpy_func):
     return wrapper
 
 
-class NumpyQuantity(Generic[MagnitudeT], PlainQuantity[MagnitudeT]):
+class NumpyQuantity(PlainQuantity[M]):
     """ """
 
     # NumPy function/ufunc support

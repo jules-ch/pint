@@ -1,19 +1,19 @@
 """
-    pint.facets.nonmultiplicative.objects
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.nonmultiplicative.objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
-from typing import Generic
+from pint._typing import M
 
-from ..plain import MagnitudeT, PlainQuantity, PlainUnit
+from ..plain import PlainQuantity, PlainUnit
 
 
-class NonMultiplicativeQuantity(Generic[MagnitudeT], PlainQuantity[MagnitudeT]):
+class NonMultiplicativeQuantity(PlainQuantity[M]):
     @property
     def _is_multiplicative(self) -> bool:
         """Check if the PlainQuantity object has only multiplicative units."""

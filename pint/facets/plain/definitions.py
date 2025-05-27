@@ -1,9 +1,9 @@
 """
-    pint.facets.plain.definitions
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.plain.definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Any
 
-from ... import errors
-from ..._typing import Magnitude
-from ...converters import Converter
-from ...util import UnitsContainer
+from pint import errors
+from pint._typing import Magnitude
+from pint.converters import Converter
+from pint.util import UnitsContainer
 
 
 class NotNumeric(Exception):

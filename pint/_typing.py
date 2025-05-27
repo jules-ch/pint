@@ -47,6 +47,15 @@ QuantityArgument = Any
 T = TypeVar("T")
 
 
+M = TypeVar("M", bound=Magnitude)
+ScalarT = TypeVar("ScalarT", bound=Scalar)
+
+# Generic types used to mark types associated to Registries.
+QuantityT = TypeVar("QuantityT", bound="Quantity")
+UnitT = TypeVar("UnitT", bound="Unit")
+
+PreProcessorCallable = Callable[[str], str]
+
+
 class Handler(Protocol):
-    def __getitem__(self, item: type[T]) -> Callable[[T], None]:
-        ...
+    def __getitem__(self, item: type[T]) -> Callable[[T], None]: ...

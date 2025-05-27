@@ -26,6 +26,7 @@ from typing import (
     Unpack,  # noqa
 )
 
+
 if sys.version_info >= (3, 13):
     from warnings import deprecated  # noqa
 else:

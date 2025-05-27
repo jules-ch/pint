@@ -1,23 +1,23 @@
 """
-    pint.facets.plain.registry
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.plain.registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 
-    The registry contains the following important methods:
+The registry contains the following important methods:
 
-    - parse_unit_name: Parse a unit to identify prefix, unit name and suffix
-      by walking the list of prefix and suffix.
-      Result is cached: NO
-    - parse_units: Parse a units expression and returns a UnitContainer with
-      the canonical names.
-      The expression can only contain products, ratios and powers of units;
-      prefixed units and pluralized units.
-      Result is cached: YES
-    - parse_expression: Parse a mathematical expression including units and
-      return a quantity object.
-      Result is cached: NO
+- parse_unit_name: Parse a unit to identify prefix, unit name and suffix
+  by walking the list of prefix and suffix.
+  Result is cached: NO
+- parse_units: Parse a units expression and returns a UnitContainer with
+  the canonical names.
+  The expression can only contain products, ratios and powers of units;
+  prefixed units and pluralized units.
+  Result is cached: YES
+- parse_expression: Parse a mathematical expression including units and
+  return a quantity object.
+  Result is cached: NO
 
 """
 
@@ -35,39 +35,35 @@ from decimal import Decimal
 from fractions import Fraction
 from token import NAME, NUMBER
 from tokenize import TokenInfo
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union
 
 if TYPE_CHECKING:
-    from ...compat import Locale
+    from pint.compat import Locale
+
     from ..context import Context
 
-    # from ..._typing import Quantity, Unit
 
 import platformdirs
 
-from ... import pint_eval
-from ..._typing import (
+from pint import pint_eval
+from pint._typing import (
     Handler,
     QuantityArgument,
     QuantityOrUnitLike,
+    QuantityT,
     Scalar,
     UnitLike,
+    UnitT,
 )
-from ...compat import Self, TypeAlias, deprecated
-from ...errors import (
+from pint.compat import Self, deprecated
+from pint.errors import (
     DimensionalityError,
     OffsetUnitCalculusError,
     RedefinitionError,
     UndefinedUnitError,
 )
-from ...pint_eval import build_eval_tree
-from ...util import (
+from pint.pint_eval import build_eval_tree
+from pint.util import (
     ParserHelper,
     _is_dim,
     create_class_with_registry,
@@ -77,7 +73,8 @@ from ...util import (
     string_preprocessor,
     to_units_container,
 )
-from ...util import UnitsContainer as UnitsContainer
+from pint.util import UnitsContainer as UnitsContainer
+
 from .definitions import (
     AliasDefinition,
     CommentDefinition,
@@ -159,12 +156,7 @@ class RegistryMeta(type):
         return obj
 
 
-# Generic types used to mark types associated to Registries.
-QuantityT = TypeVar("QuantityT", bound=PlainQuantity[Any])
-UnitT = TypeVar("UnitT", bound=PlainUnit)
-
-
-class GenericPlainRegistry(Generic[QuantityT, UnitT], metaclass=RegistryMeta):
+class GenericPlainRegistry(metaclass=RegistryMeta):
     """Base class for all registries.
 
     Capabilities:
@@ -210,18 +202,15 @@ class GenericPlainRegistry(Generic[QuantityT, UnitT], metaclass=RegistryMeta):
         future release.
     """
 
-    Quantity: type[QuantityT]
-    Unit: type[UnitT]
-
     _diskcache = None
     _def_parser = None
 
     def __init__(
         self,
-        filename="",
+        filename: str = "",
         force_ndarray: bool = False,
         force_ndarray_like: bool = False,
-        on_redefinition: str = "warn",
+        on_redefinition: Literal["warn", "raise", "ignore"] = "warn",
         auto_reduce_dimensions: bool = False,
         autoconvert_to_preferred: bool = False,
         preprocessors: list[PreprocessorType] | None = None,
@@ -342,12 +331,7 @@ class GenericPlainRegistry(Generic[QuantityT, UnitT], metaclass=RegistryMeta):
     def _register_adder(
         self,
         definition_class: type[T],
-        adder_func: Callable[
-            [
-                T,
-            ],
-            None,
-        ],
+        adder_func: Callable[[T], None],
     ) -> None:
         """Register a block definition."""
         self._adders[definition_class] = adder_func
@@ -493,7 +477,7 @@ class GenericPlainRegistry(Generic[QuantityT, UnitT], metaclass=RegistryMeta):
                 break
         else:
             raise TypeError(
-                f"No loader function defined " f"for {definition.__class__.__name__}"
+                f"No loader function defined for {definition.__class__.__name__}"
             )
 
         adder_func(definition)
@@ -1419,6 +1403,6 @@ class GenericPlainRegistry(Generic[QuantityT, UnitT], metaclass=RegistryMeta):
     __call__ = parse_expression
 
 
-class PlainRegistry(GenericPlainRegistry[PlainQuantity[Any], PlainUnit]):
-    Quantity: TypeAlias = PlainQuantity[Any]
-    Unit: TypeAlias = PlainUnit
+class PlainRegistry(GenericPlainRegistry):
+    Quantity = PlainQuantity
+    Unit = PlainUnit

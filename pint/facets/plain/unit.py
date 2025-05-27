@@ -1,23 +1,26 @@
 """
-    pint.facets.plain.unit
-    ~~~~~~~~~~~~~~~~~~~~~
+pint.facets.plain.unit
+~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2016 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2016 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
 import copy
+from decimal import Decimal
 import locale
 import operator
 from numbers import Number
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Self, Union, overload
 
-from ..._typing import UnitLike
-from ...compat import NUMERIC_TYPES, deprecated
-from ...errors import DimensionalityError
-from ...util import PrettyIPython, SharedRegistryObject, UnitsContainer
+from pint._typing import M, QuantityT, UnitLike
+from pint.compat import NUMERIC_TYPES, deprecated
+from pint.errors import DimensionalityError
+from pint.facets.plain.quantity import PlainQuantity
+from pint.util import PrettyIPython, SharedRegistryObject, UnitsContainer
+
 from .definitions import UnitDefinition
 
 if TYPE_CHECKING:
@@ -43,7 +46,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
             self._units = units._units
         else:
             raise TypeError(
-                "units must be of type str, Unit or " "UnitsContainer; not {}.".format(
+                "units must be of type str, Unit or UnitsContainer; not {}.".format(
                     type(units)
                 )
             )
@@ -96,7 +99,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
 
         return self._dimensionality
 
-    def compatible_units(self, *contexts):
+    def compatible_units(self, *contexts: str) -> frozenset[PlainUnit]:
         if contexts:
             with self._REGISTRY.context(*contexts):
                 return self._REGISTRY.get_compatible_units(self)
@@ -141,6 +144,10 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
 
         return self.dimensionless
 
+    @overload
+    def __mul__(self, other: Self) -> Self: ...
+    @overload
+    def __mul__(self, other: M) -> PlainQuantity[M]: ...
     def __mul__(self, other):
         if self._check(other):
             if isinstance(other, self.__class__):
@@ -156,6 +163,10 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
 
     __rmul__ = __mul__
 
+    @overload
+    def __truediv__(self, other: Self) -> Self: ...
+    @overload
+    def __truediv__(self, other: M) -> PlainQuantity[M]: ...
     def __truediv__(self, other):
         if self._check(other):
             if isinstance(other, self.__class__):
@@ -166,7 +177,11 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
 
         return self._REGISTRY.Quantity(1 / other, self._units)
 
-    def __rtruediv__(self, other):
+    @overload
+    def __rtruediv__(self, other: Self) -> Self: ...
+    @overload
+    def __rtruediv__(self, other: M) -> PlainQuantity[M]: ...
+    def __rtruediv__(self, other: Any) -> Union[PlainQuantity, Self]:
         # As PlainUnit and Quantity both handle truediv with each other rtruediv can
         # only be called for something different.
         if isinstance(other, NUMERIC_TYPES):
@@ -179,7 +194,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
     __div__ = __truediv__
     __rdiv__ = __rtruediv__
 
-    def __pow__(self, other) -> PlainUnit:
+    def __pow__(self, other: Any) -> PlainUnit:
         if isinstance(other, NUMERIC_TYPES):
             return self.__class__(self._units**other)
 
@@ -190,7 +205,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
     def __hash__(self) -> int:
         return self._units.__hash__()
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: Any) -> bool:
         # We compare to the plain class of PlainUnit because each PlainUnit class is
         # unique.
         if self._check(other):
@@ -205,7 +220,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
         else:
             return self._units == other
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: Any) -> bool:
         return not (self == other)
 
     def compare(self, other, op) -> bool:
@@ -233,7 +248,7 @@ class PlainUnit(PrettyIPython, SharedRegistryObject):
         return complex(self._REGISTRY.Quantity(1, self._units))
 
     @property
-    def systems(self):
+    def systems(self) -> frozenset[str]:
         out = set()
         for uname in self._units.keys():
             for sname, sys in self._REGISTRY._systems.items():

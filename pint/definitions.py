@@ -1,18 +1,19 @@
 """
-    pint.definitions
-    ~~~~~~~~~~~~~~~~
+pint.definitions
+~~~~~~~~~~~~~~~~
 
-    Kept for backwards compatibility
+Kept for backwards compatibility
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
 import flexparser as fp
 
-from . import errors
+from pint import errors
+
 from .delegates import ParserConfig, txt_defparser
 
 

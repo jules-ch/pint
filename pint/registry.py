@@ -1,23 +1,39 @@
 """
-    pint.registry
-    ~~~~~~~~~~~~~
+pint.registry
+~~~~~~~~~~~~~
 
-    Defines the UnitRegistry, a class to contain units and their relations.
+Defines the UnitRegistry, a class to contain units and their relations.
 
-    This registry contains all pint capabilities, but you can build your
-    customized registry by picking only the features that you actually
-    need.
+This registry contains all pint capabilities, but you can build your
+customized registry by picking only the features that you actually
+need.
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
-from typing import Generic
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Any, Generic, overload
+
+from pint._typing import M, PreProcessorCallable, ScalarT, UnitLike
+from pint.facets.context.objects import ContextQuantity, ContextUnit
+from pint.facets.dask import DaskQuantity, DaskUnit
+from pint.facets.measurement.objects import MeasurementQuantity, MeasurementUnit
+from pint.facets.nonmultiplicative.objects import (
+    NonMultiplicativeQuantity,
+    NonMultiplicativeUnit,
+)
+from pint.facets.numpy.quantity import NumpyQuantity
+from pint.facets.numpy.unit import NumpyUnit
+from pint.facets.plain.quantity import PlainQuantity
+from pint.facets.plain.registry import NON_INT_TYPE
+from pint.facets.plain.unit import PlainUnit
+from pint.facets.system.objects import SystemQuantity, SystemUnit
 
 from . import facets, registry_helpers
-from .compat import TypeAlias
 from .util import logger, pi_theorem
 
 # To build the Quantity and Unit classes
@@ -26,43 +42,61 @@ from .util import logger, pi_theorem
 
 
 class Quantity(
-    facets.SystemRegistry.Quantity,
-    facets.ContextRegistry.Quantity,
-    facets.DaskRegistry.Quantity,
-    facets.NumpyRegistry.Quantity,
-    facets.MeasurementRegistry.Quantity,
-    facets.NonMultiplicativeRegistry.Quantity,
-    facets.PlainRegistry.Quantity,
+    SystemQuantity[M],
+    ContextQuantity[M],
+    DaskQuantity[M],
+    NumpyQuantity[M],
+    MeasurementQuantity[M],
+    NonMultiplicativeQuantity[M],
+    PlainQuantity[M],
+    Generic[M],
 ):
-    pass
+    @overload
+    def __new__(cls, value: str, units: UnitLike | None = None) -> Quantity[Any]: ...
+
+    @overload
+    def __new__(  # type: ignore[misc]
+        cls, value: Sequence[ScalarT], units: UnitLike | None = None
+    ) -> Quantity[Any]: ...
+
+    @overload
+    def __new__(
+        cls, value: Quantity[Any], units: UnitLike | None = None
+    ) -> Quantity[Any]: ...
+    @overload
+    def __new__(cls, value: M, units: UnitLike | None = None) -> Quantity[M]: ...
+
+    def __new__(
+        cls, value: M | Sequence[Any] | Quantity[Any], units: UnitLike | None = None
+    ) -> Quantity[Any]:
+        return super().__new__(cls, value, units)
 
 
 class Unit(
-    facets.SystemRegistry.Unit,
-    facets.ContextRegistry.Unit,
-    facets.DaskRegistry.Unit,
-    facets.NumpyRegistry.Unit,
-    facets.MeasurementRegistry.Unit,
-    facets.NonMultiplicativeRegistry.Unit,
-    facets.PlainRegistry.Unit,
+    SystemUnit,
+    ContextUnit,
+    DaskUnit,
+    NumpyUnit,
+    MeasurementUnit,
+    NonMultiplicativeUnit,
+    PlainUnit,
 ):
     pass
 
 
 class GenericUnitRegistry(
-    Generic[facets.QuantityT, facets.UnitT],
-    facets.GenericSystemRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericContextRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericDaskRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericNumpyRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericMeasurementRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericNonMultiplicativeRegistry[facets.QuantityT, facets.UnitT],
-    facets.GenericPlainRegistry[facets.QuantityT, facets.UnitT],
+    facets.GenericSystemRegistry,
+    facets.GenericContextRegistry,
+    facets.GenericDaskRegistry,
+    facets.GenericNumpyRegistry,
+    facets.GenericMeasurementRegistry,
+    facets.GenericNonMultiplicativeRegistry,
+    facets.GenericPlainRegistry,
 ):
     pass
 
 
-class UnitRegistry(GenericUnitRegistry[Quantity, Unit]):
+class UnitRegistry(GenericUnitRegistry):
     """The unit registry stores the definitions and relationships between units.
 
     Parameters
@@ -108,25 +142,25 @@ class UnitRegistry(GenericUnitRegistry[Quantity, Unit]):
         If None, the cache is disabled. (default)
     """
 
-    Quantity: TypeAlias = Quantity
-    Unit: TypeAlias = Unit
+    Quantity = Quantity
+    Unit = Unit
 
     def __init__(
         self,
-        filename="",
+        filename: str = "",
         force_ndarray: bool = False,
         force_ndarray_like: bool = False,
         default_as_delta: bool = True,
         autoconvert_offset_to_baseunit: bool = False,
         on_redefinition: str = "warn",
-        system=None,
-        auto_reduce_dimensions=False,
-        autoconvert_to_preferred=False,
-        preprocessors=None,
-        fmt_locale=None,
-        non_int_type=float,
+        system: str | None = None,
+        auto_reduce_dimensions: bool = False,
+        autoconvert_to_preferred: bool = False,
+        preprocessors: list[PreProcessorCallable] | None = None,
+        fmt_locale: str | None = None,
+        non_int_type: NON_INT_TYPE = float,
         case_sensitive: bool = True,
-        cache_folder=None,
+        cache_folder: str | Path | None = None,
     ):
         super().__init__(
             filename=filename,
@@ -180,7 +214,7 @@ class UnitRegistry(GenericUnitRegistry[Quantity, Unit]):
     check = registry_helpers.check
 
 
-class LazyRegistry(Generic[facets.QuantityT, facets.UnitT]):
+class LazyRegistry:
     def __init__(self, args=None, kwargs=None):
         self.__dict__["params"] = args or (), kwargs or {}
 

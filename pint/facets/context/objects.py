@@ -1,9 +1,9 @@
 """
-    pint.facets.context.objects
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.context.objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -13,29 +13,27 @@ from collections import ChainMap, defaultdict
 from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING, Any, Generic, Protocol
 
-from ..._typing import Magnitude
-from ...facets.plain import MagnitudeT, PlainQuantity, PlainUnit, UnitDefinition
-from ...util import UnitsContainer, to_units_container
+from pint._typing import M, Magnitude, UnitLike
+from pint.facets.plain import PlainQuantity, PlainUnit, UnitDefinition
+from pint.util import UnitsContainer, to_units_container
+
 from .definitions import ContextDefinition
 
 if TYPE_CHECKING:
-    from ...registry import UnitRegistry
+    from pint.registry import UnitRegistry
 
 
 class Transformation(Protocol):
     def __call__(
         self, ureg: UnitRegistry, value: PlainQuantity, **kwargs: Any
-    ) -> PlainQuantity:
-        ...
+    ) -> PlainQuantity: ...
 
-
-from ..._typing import UnitLike
 
 ToBaseFunc = Callable[[UnitsContainer], UnitsContainer]
 SrcDst = tuple[UnitsContainer, UnitsContainer]
 
 
-class ContextQuantity(Generic[MagnitudeT], PlainQuantity[MagnitudeT]):
+class ContextQuantity(PlainQuantity[M], Generic[M]):
     pass
 
 
@@ -75,19 +73,19 @@ class Context:
     >>> from pint.util import UnitsContainer
     >>> from pint import Context, UnitRegistry
     >>> ureg = UnitRegistry()
-    >>> timedim = UnitsContainer({'[time]': 1})
-    >>> spacedim = UnitsContainer({'[length]': 1})
+    >>> timedim = UnitsContainer({"[time]": 1})
+    >>> spacedim = UnitsContainer({"[length]": 1})
     >>> def time_to_len(ureg, time):
-    ...     'Time to length converter'
-    ...     return 3. * time
+    ...     "Time to length converter"
+    ...     return 3.0 * time
     >>> c = Context()
     >>> c.add_transformation(timedim, spacedim, time_to_len)
     >>> c.transform(timedim, spacedim, ureg, 2)
     6.0
     >>> def time_to_len_indexed(ureg, time, n=1):
-    ...     'Time to length converter, n is the index of refraction of the material'
-    ...     return 3. * time / n
-    >>> c = Context(defaults={'n':3})
+    ...     "Time to length converter, n is the index of refraction of the material"
+    ...     return 3.0 * time / n
+    >>> c = Context(defaults={"n": 3})
     >>> c.add_transformation(timedim, spacedim, time_to_len_indexed)
     >>> c.transform(timedim, spacedim, ureg, 2)
     2.0
@@ -114,13 +112,13 @@ class Context:
         self.redefinitions: list[Any] = []
 
         # Flag set to True by the Registry the first time the context is enabled
-        self.checked = False
+        self.checked: bool = False
 
         #: Maps (src, dst) -> self
         #: Used as a convenience dictionary to be composed by ContextChain
-        self.relation_to_context: weakref.WeakValueDictionary[
-            SrcDst, Context
-        ] = weakref.WeakValueDictionary()
+        self.relation_to_context: weakref.WeakValueDictionary[SrcDst, Context] = (
+            weakref.WeakValueDictionary()
+        )
 
     @classmethod
     def from_context(cls, context: Context, **defaults: Any) -> Context:

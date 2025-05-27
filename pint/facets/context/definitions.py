@@ -1,9 +1,9 @@
 """
-    pint.facets.context.definitions
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.context.definitions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -15,11 +15,12 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from ... import errors
+from pint import errors
+
 from ..plain import UnitDefinition
 
 if TYPE_CHECKING:
-    from ..._typing import Quantity, UnitsContainer
+    from pint._typing import Quantity, UnitsContainer
 
 
 @dataclass(frozen=True)

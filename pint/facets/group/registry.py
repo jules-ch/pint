@@ -1,35 +1,31 @@
 """
-    pint.facets.group.registry
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.group.registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Generic
 
-from ... import errors
-from ...compat import TypeAlias
+from pint import errors
 
 if TYPE_CHECKING:
-    from ..._typing import Unit, UnitsContainer
+    from pint._typing import Unit, UnitsContainer
 
-from ...util import create_class_with_registry, to_units_container
+from pint.util import create_class_with_registry, to_units_container
+
 from ..plain import (
     GenericPlainRegistry,
-    QuantityT,
     UnitDefinition,
-    UnitT,
 )
 from . import objects
 from .definitions import GroupDefinition
 
 
-class GenericGroupRegistry(
-    Generic[QuantityT, UnitT], GenericPlainRegistry[QuantityT, UnitT]
-):
+class GenericGroupRegistry(GenericPlainRegistry):
     """Handle of Groups.
 
     Group units
@@ -148,8 +144,6 @@ class GenericGroupRegistry(
         return frozenset(ret & members)
 
 
-class GroupRegistry(
-    GenericGroupRegistry[objects.GroupQuantity[Any], objects.GroupUnit]
-):
-    Quantity: TypeAlias = objects.GroupQuantity[Any]
-    Unit: TypeAlias = objects.GroupUnit
+class GroupRegistry(GenericGroupRegistry):
+    Quantity = objects.GroupQuantity[Any]
+    Unit = objects.GroupUnit

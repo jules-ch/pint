@@ -1,23 +1,29 @@
 """
-    pint.facets.numpy.numpy_func
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.numpy.numpy_func
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
 
 import warnings
+from collections.abc import Callable
 from inspect import signature
 from itertools import chain
+from typing import Any
 
-from ...compat import is_upcast_type, np, zero_or_nan
-from ...errors import DimensionalityError, OffsetUnitCalculusError, UnitStrippedWarning
-from ...util import iterable, sized
+from pint.compat import is_upcast_type, np, zero_or_nan
+from pint.errors import (
+    DimensionalityError,
+    OffsetUnitCalculusError,
+    UnitStrippedWarning,
+)
+from pint.util import iterable, sized
 
-HANDLED_UFUNCS = {}
-HANDLED_FUNCTIONS = {}
+HANDLED_UFUNCS: dict[str, Callable[..., Any]] = {}
+HANDLED_FUNCTIONS: dict[str, Callable[..., Any]] = {}
 
 
 # Shared Implementation Utilities

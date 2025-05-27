@@ -14,14 +14,9 @@ import functools
 import re
 import warnings
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TypeAlias
 
-FORMATTER = Callable[
-    [
-        Any,
-    ],
-    str,
-]
+FORMATTER: TypeAlias = Callable[[Any], str]
 
 # Extract just the type from the specification mini-language: see
 # http://docs.python.org/2/library/string.html#format-specification-mini-language

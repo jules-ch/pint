@@ -14,16 +14,10 @@ import locale
 import numbers
 import operator
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    TypeVar,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, Generic, overload
 
-from ..._typing import Magnitude, QuantityOrUnitLike, Scalar, UnitLike
-from ...compat import (
+from pint._typing import M, Magnitude, QuantityOrUnitLike, Scalar, ScalarT, UnitLike
+from pint.compat import (
     HAS_NUMPY,
     Self,
     _to_magnitude,
@@ -34,14 +28,15 @@ from ...compat import (
     np,
     zero_or_nan,
 )
-from ...errors import DimensionalityError, OffsetUnitCalculusError, PintTypeError
-from ...util import (
+from pint.errors import DimensionalityError, OffsetUnitCalculusError, PintTypeError
+from pint.util import (
     PrettyIPython,
     SharedRegistryObject,
     UnitsContainer,
     logger,
     to_units_container,
 )
+
 from . import qto
 from .definitions import UnitDefinition
 
@@ -62,12 +57,6 @@ except ImportError:
     unp = np
     ufloat = Ufloat = None
     HAS_UNCERTAINTIES = False
-
-
-MagnitudeT = TypeVar("MagnitudeT", bound=Magnitude)
-ScalarT = TypeVar("ScalarT", bound=Scalar)
-
-T = TypeVar("T", bound=Magnitude)
 
 
 def ireduce_dimensions(f):
@@ -118,7 +107,7 @@ def method_wraps(numpy_func):
 # TODO: remove all nonmultiplicative remnants
 
 
-class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
+class PlainQuantity(PrettyIPython, SharedRegistryObject, Generic[M]):
     """Implements a class to describe a physical quantity:
     the product of a numerical value and a unit of measurement.
 
@@ -134,58 +123,30 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
     """
 
-    _magnitude: MagnitudeT
+    _magnitude: M
 
-    @property
-    def ndim(self) -> int:
-        if isinstance(self.magnitude, numbers.Number):
-            return 0
-        if str(type(self.magnitude)) == "NAType":
-            return 0
-        return self.magnitude.ndim
-
-    @property
-    def force_ndarray(self) -> bool:
-        return self._REGISTRY.force_ndarray
-
-    @property
-    def force_ndarray_like(self) -> bool:
-        return self._REGISTRY.force_ndarray_like
-
-    def __reduce__(self) -> tuple[type, Magnitude, UnitsContainer]:
-        """Allow pickling quantities. Since UnitRegistries are not pickled, upon
-        unpickling the new object is always attached to the application registry.
-        """
-        from pint import _unpickle_quantity
-
-        # Note: type(self) would be a mistake as subclasses built by
-        # dinamically can't be pickled
-        # TODO: Check if this is still the case.
-        return _unpickle_quantity, (PlainQuantity, self.magnitude, self._units)
+    _dimensionality: UnitsContainerT | None = None
 
     @overload
     def __new__(
-        cls, value: MagnitudeT, units: UnitLike | None = None
-    ) -> PlainQuantity[MagnitudeT]:
-        ...
-
-    @overload
-    def __new__(cls, value: str, units: UnitLike | None = None) -> PlainQuantity[Any]:
-        ...
+        cls, value: str, units: UnitLike | None = None
+    ) -> PlainQuantity[Any]: ...
 
     @overload
     def __new__(  # type: ignore[misc]
         cls, value: Sequence[ScalarT], units: UnitLike | None = None
-    ) -> PlainQuantity[Any]:
-        ...
+    ) -> PlainQuantity[Any]: ...
 
     @overload
     def __new__(
         cls, value: PlainQuantity[Any], units: UnitLike | None = None
-    ) -> PlainQuantity[Any]:
-        ...
+    ) -> PlainQuantity[Any]: ...
+    @overload
+    def __new__(cls, value: M, units: UnitLike | None = None) -> PlainQuantity[M]: ...
 
-    def __new__(cls, value, units=None):
+    def __new__(
+        cls, value: M | Sequence | PlainQuantity, units: UnitLike | None = None
+    ) -> PlainQuantity:
         if is_upcast_type(type(value)):
             raise TypeError(f"PlainQuantity cannot wrap upcast type {type(value)}")
 
@@ -234,7 +195,34 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
         return inst
 
-    def __iter__(self: PlainQuantity[MagnitudeT]) -> Iterator[Any]:
+    @property
+    def ndim(self) -> int:
+        if isinstance(self.magnitude, numbers.Number):
+            return 0
+        if str(type(self.magnitude)) == "NAType":
+            return 0
+        return self.magnitude.ndim
+
+    @property
+    def force_ndarray(self) -> bool:
+        return self._REGISTRY.force_ndarray
+
+    @property
+    def force_ndarray_like(self) -> bool:
+        return self._REGISTRY.force_ndarray_like
+
+    def __reduce__(self) -> tuple[type, Magnitude, UnitsContainer]:
+        """Allow pickling quantities. Since UnitRegistries are not pickled, upon
+        unpickling the new object is always attached to the application registry.
+        """
+        from pint import _unpickle_quantity
+
+        # Note: type(self) would be a mistake as subclasses built by
+        # dinamically can't be pickled
+        # TODO: Check if this is still the case.
+        return _unpickle_quantity, (PlainQuantity, self.magnitude, self._units)
+
+    def __iter__(self) -> Iterator:
         # Make sure that, if self.magnitude is not iterable, we raise TypeError as soon
         # as one calls iter(self) without waiting for the first element to be drawn from
         # the iterator
@@ -246,11 +234,11 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
         return it_outer()
 
-    def __copy__(self) -> PlainQuantity[MagnitudeT]:
+    def __copy__(self) -> Self:
         ret = self.__class__(copy.copy(self._magnitude), self._units)
         return ret
 
-    def __deepcopy__(self, memo) -> PlainQuantity[MagnitudeT]:
+    def __deepcopy__(self, memo) -> Self:
         ret = self.__class__(
             copy.deepcopy(self._magnitude, memo), copy.deepcopy(self._units, memo)
         )
@@ -291,16 +279,16 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
         return hash((self_base.__class__, self_base.magnitude, self_base.units))
 
     @property
-    def magnitude(self) -> MagnitudeT:
+    def magnitude(self) -> M:
         """PlainQuantity's magnitude. Long form for `m`"""
         return self._magnitude
 
     @property
-    def m(self) -> MagnitudeT:
+    def m(self) -> M:
         """PlainQuantity's magnitude. Short form for `magnitude`"""
         return self._magnitude
 
-    def m_as(self, units) -> MagnitudeT:
+    def m_as(self, units) -> M:
         """PlainQuantity's magnitude expressed in particular units.
 
         Parameters
@@ -326,7 +314,6 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
     @property
     def unitless(self) -> bool:
-        """ """
         return not bool(self.to_root_units()._units)
 
     def unit_items(self) -> Iterable[tuple[str, Scalar]]:
@@ -335,12 +322,9 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
     @property
     def dimensionless(self) -> bool:
-        """ """
         tmp = self.to_root_units()
 
         return not bool(tmp.dimensionality)
-
-    _dimensionality: UnitsContainerT | None = None
 
     @property
     def dimensionality(self) -> UnitsContainerT:
@@ -361,8 +345,8 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
     @classmethod
     def from_list(
-        cls, quant_list: list[PlainQuantity[MagnitudeT]], units=None
-    ) -> PlainQuantity[MagnitudeT]:
+        cls, quant_list: list[PlainQuantity[M]], units: UnitLike | None = None
+    ) -> PlainQuantity[M]:
         """Transforms a list of Quantities into an numpy.array quantity.
         If no units are specified, the unit of the first element will be used.
         Same as from_sequence.
@@ -385,8 +369,8 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
     @classmethod
     def from_sequence(
-        cls, seq: Sequence[PlainQuantity[MagnitudeT]], units=None
-    ) -> PlainQuantity[MagnitudeT]:
+        cls, seq: Sequence[PlainQuantity[M]], units=None
+    ) -> PlainQuantity[M]:
         """Transforms a sequence of Quantities into an numpy.array quantity.
         If no units are specified, the unit of the first element will be used.
 
@@ -421,13 +405,13 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
         return cls(a, units)
 
     @classmethod
-    def from_tuple(cls, tup):
+    def from_tuple(cls, tup) -> Self:
         return cls(tup[0], cls._REGISTRY.UnitsContainer(tup[1]))
 
-    def to_tuple(self) -> tuple[MagnitudeT, tuple[tuple[str, ...]]]:
+    def to_tuple(self) -> tuple[M, tuple[tuple[str, ...]]]:
         return self.m, tuple(self._units.items())
 
-    def compatible_units(self, *contexts):
+    def compatible_units(self, *contexts: str) -> frozenset[Unit]:
         if contexts:
             with self._REGISTRY.context(*contexts):
                 return self._REGISTRY.get_compatible_units(self._units)
@@ -472,14 +456,14 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
         return self.dimensionless
 
-    def _convert_magnitude_not_inplace(self, other, *contexts, **ctx_kwargs):
+    def _convert_magnitude_not_inplace(self, other, *contexts: str, **ctx_kwargs):
         if contexts:
             with self._REGISTRY.context(*contexts, **ctx_kwargs):
                 return self._REGISTRY.convert(self._magnitude, self._units, other)
 
         return self._REGISTRY.convert(self._magnitude, self._units, other)
 
-    def _convert_magnitude(self, other, *contexts, **ctx_kwargs):
+    def _convert_magnitude(self, other, *contexts: str, **ctx_kwargs):
         if contexts:
             with self._REGISTRY.context(*contexts, **ctx_kwargs):
                 return self._REGISTRY.convert(self._magnitude, self._units, other)
@@ -514,7 +498,10 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
         return None
 
     def to(
-        self, other: QuantityOrUnitLike | None = None, *contexts, **ctx_kwargs
+        self: Self,
+        other: QuantityOrUnitLike | None = None,
+        *contexts: str,
+        **ctx_kwargs,
     ) -> Self:
         """Return PlainQuantity rescaled to different units.
 
@@ -547,7 +534,7 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
         return None
 
-    def to_root_units(self) -> PlainQuantity[MagnitudeT]:
+    def to_root_units(self) -> PlainQuantity[M]:
         """Return PlainQuantity rescaled to root units."""
 
         _, other = self._REGISTRY._get_root_units(self._units)
@@ -566,7 +553,7 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
 
         return None
 
-    def to_base_units(self) -> PlainQuantity[MagnitudeT]:
+    def to_base_units(self) -> PlainQuantity[M]:
         """Return PlainQuantity rescaled to plain units."""
 
         _, other = self._REGISTRY._get_base_units(self._units)
@@ -827,13 +814,9 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
         return self.__class__(magnitude, units)
 
     @overload
-    def __iadd__(self, other: datetime.datetime) -> datetime.timedelta:  # type: ignore[misc]
-        ...
-
+    def __iadd__(self, other: datetime.datetime) -> datetime.timedelta: ...
     @overload
-    def __iadd__(self, other) -> PlainQuantity[MagnitudeT]:
-        ...
-
+    def __iadd__(self, other) -> PlainQuantity[M]: ...
     def __iadd__(self, other):
         if isinstance(other, datetime.datetime):
             return self.to_timedelta() + other
@@ -1207,7 +1190,7 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
             return self
 
     @check_implemented
-    def __pow__(self, other) -> PlainQuantity[MagnitudeT]:
+    def __pow__(self, other) -> PlainQuantity[M]:
         try:
             _to_magnitude(other, self.force_ndarray, self.force_ndarray_like)
         except PintTypeError:
@@ -1272,7 +1255,7 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
             return self.__class__(magnitude, units)
 
     @check_implemented
-    def __rpow__(self, other) -> PlainQuantity[MagnitudeT]:
+    def __rpow__(self, other) -> PlainQuantity[M]:
         try:
             _to_magnitude(other, self.force_ndarray, self.force_ndarray_like)
         except PintTypeError:
@@ -1285,16 +1268,16 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
             new_self = self.to_root_units()
             return other**new_self._magnitude
 
-    def __abs__(self) -> PlainQuantity[MagnitudeT]:
+    def __abs__(self) -> PlainQuantity[M]:
         return self.__class__(abs(self._magnitude), self._units)
 
     def __round__(self, ndigits: int | None = None) -> PlainQuantity[int]:
         return self.__class__(round(self._magnitude, ndigits), self._units)
 
-    def __pos__(self) -> PlainQuantity[MagnitudeT]:
+    def __pos__(self) -> PlainQuantity[M]:
         return self.__class__(operator.pos(self._magnitude), self._units)
 
-    def __neg__(self) -> PlainQuantity[MagnitudeT]:
+    def __neg__(self) -> PlainQuantity[M]:
         return self.__class__(operator.neg(self._magnitude), self._units)
 
     @check_implemented
@@ -1468,8 +1451,8 @@ class PlainQuantity(Generic[MagnitudeT], PrettyIPython, SharedRegistryObject):
     def _ok_for_muldiv(self, no_offset_units=None) -> bool:
         return True
 
-    def to_timedelta(self: PlainQuantity[MagnitudeT]) -> datetime.timedelta:
-        return datetime.timedelta(microseconds=self.to("microseconds").magnitude)
+    def to_timedelta(self: PlainQuantity[M]) -> datetime.timedelta:
+        return datetime.timedelta(microseconds=float(self.to("microseconds").magnitude))
 
     # We put this last to avoid overriding UnitsContainer
     # and I do not want to rename it.

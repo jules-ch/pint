@@ -1,9 +1,9 @@
 """
-    pint.facets.group.objects
-    ~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.group.objects
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -11,28 +11,20 @@ from __future__ import annotations
 from collections.abc import Callable, Generator, Iterable
 from typing import TYPE_CHECKING, Any, Generic
 
-from ...util import SharedRegistryObject, getattr_maybe_raise
-from ..plain import MagnitudeT, PlainQuantity, PlainUnit
+from pint._typing import M
+from pint.util import SharedRegistryObject, getattr_maybe_raise
+
+from ..plain import PlainQuantity, PlainUnit
 from .definitions import GroupDefinition
 
 if TYPE_CHECKING:
     from ..plain import UnitDefinition
 
-    DefineFunc = Callable[
-        [
-            Any,
-        ],
-        None,
-    ]
-    AddUnitFunc = Callable[
-        [
-            UnitDefinition,
-        ],
-        None,
-    ]
+    DefineFunc = Callable[[Any], None]
+    AddUnitFunc = Callable[[UnitDefinition], None]
 
 
-class GroupQuantity(Generic[MagnitudeT], PlainQuantity[MagnitudeT]):
+class GroupQuantity(PlainQuantity[M], Generic[M]):
     pass
 
 
@@ -60,7 +52,7 @@ class Group(SharedRegistryObject):
 
     def __init__(self, name: str):
         # The name of the group.
-        self.name = name
+        self.name: str = name
 
         #: Names of the units in this group.
         #: :type: set[str]

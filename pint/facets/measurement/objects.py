@@ -1,9 +1,9 @@
 """
-    pint.facets.measurement.objects
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.measurement.objects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -12,15 +12,17 @@ import copy
 import re
 from typing import Generic
 
-from ...compat import ufloat
-from ..plain import MagnitudeT, PlainQuantity, PlainUnit
+from pint._typing import M
+from pint.compat import ufloat
+
+from ..plain import PlainQuantity, PlainUnit
 
 MISSING = object()
 
 
-class MeasurementQuantity(Generic[MagnitudeT], PlainQuantity[MagnitudeT]):
+class MeasurementQuantity(PlainQuantity[M], Generic[M]):
     # Measurement support
-    def plus_minus(self, error, relative=False):
+    def plus_minus(self, error, relative: bool = False):
         if isinstance(error, self.__class__):
             if relative:
                 raise ValueError(f"{error} is not a valid relative error.")

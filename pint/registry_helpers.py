@@ -1,11 +1,11 @@
 """
-    pint.registry_helpers
-    ~~~~~~~~~~~~~~~~~~~~~
+pint.registry_helpers
+~~~~~~~~~~~~~~~~~~~~~
 
-    Miscellaneous methods of the registry written as separate functions.
+Miscellaneous methods of the registry written as separate functions.
 
-    :copyright: 2016 by Pint Authors, see AUTHORS for more details..
-    :license: BSD, see LICENSE for more details.
+:copyright: 2016 by Pint Authors, see AUTHORS for more details..
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -200,7 +200,7 @@ def wraps(
     ret: str | Unit | Iterable[str | Unit | None] | None,
     args: str | Unit | Iterable[str | Unit | None] | None,
     strict: bool = True,
-) -> Callable[[Callable[..., Any]], Callable[..., Quantity]]:
+) -> Callable[[Callable[..., Any]], Callable[..., Quantity[Any]]]:
     """Wraps a function to become pint-aware.
 
     Use it when a function requires a numerical value but in some specific

@@ -1,9 +1,9 @@
 """
-    pint.facets.systems.registry
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.facets.systems.registry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
 
 from __future__ import annotations
@@ -11,27 +11,25 @@ from __future__ import annotations
 from numbers import Number
 from typing import TYPE_CHECKING, Any, Generic
 
-from ... import errors
-from ...compat import TypeAlias
-from ..plain import QuantityT, UnitT
+from pint import errors
+from pint.compat import TypeAlias
 
 if TYPE_CHECKING:
-    from ..._typing import Quantity, Unit
+    from pint._typing import Quantity, Unit
 
-from ..._typing import UnitLike
-from ...util import UnitsContainer as UnitsContainerT
-from ...util import (
+from pint._typing import UnitLike
+from pint.util import UnitsContainer as UnitsContainerT
+from pint.util import (
     create_class_with_registry,
     to_units_container,
 )
+
 from ..group import GenericGroupRegistry
 from . import objects
 from .definitions import SystemDefinition
 
 
-class GenericSystemRegistry(
-    Generic[QuantityT, UnitT], GenericGroupRegistry[QuantityT, UnitT]
-):
+class GenericSystemRegistry(GenericGroupRegistry):
     """Handle of Systems.
 
     Conversion between units with different dimensions according
@@ -240,7 +238,7 @@ class GenericSystemRegistry(
 
     def _get_compatible_units(
         self, input_units: UnitsContainerT, group_or_system: str | None = None
-    ) -> frozenset[Unit]:
+    ) -> frozenset[str]:
         if group_or_system and group_or_system in self._systems:
             members = self._systems[group_or_system].members
             # group_or_system has been handled by System
@@ -258,8 +256,6 @@ class GenericSystemRegistry(
             raise ex
 
 
-class SystemRegistry(
-    GenericSystemRegistry[objects.SystemQuantity[Any], objects.SystemUnit]
-):
-    Quantity: TypeAlias = objects.SystemQuantity[Any]
-    Unit: TypeAlias = objects.SystemUnit
+class SystemRegistry(GenericSystemRegistry):
+    Quantity = objects.SystemQuantity[Any]
+    Unit = objects.SystemUnit

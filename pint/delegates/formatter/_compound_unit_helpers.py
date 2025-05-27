@@ -1,13 +1,12 @@
 """
-    pint.delegates.formatter._compound_unit_helpers
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pint.delegates.formatter._compound_unit_helpers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Convenient functions to help organize compount units.
+Convenient functions to help organize compount units.
 
-    :copyright: 2022 by Pint Authors, see AUTHORS for more details.
-    :license: BSD, see LICENSE for more details.
+:copyright: 2022 by Pint Authors, see AUTHORS for more details.
+:license: BSD, see LICENSE for more details.
 """
-
 
 from __future__ import annotations
 
@@ -47,7 +46,7 @@ SortFunc: TypeAlias = Callable[
 ]
 
 
-class BabelKwds(TypedDict):
+class BabelKwds(TypedDict, total=False):
     """Babel related keywords used in formatters."""
 
     use_plural: bool
